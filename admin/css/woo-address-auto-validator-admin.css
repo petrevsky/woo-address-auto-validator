@@ -1,0 +1,25 @@
+/**
+ * All of the CSS for your admin-specific functionality should be
+ * included in this file.
+ */
+
+
+.wac-after-address .auto-correct-field {
+    display: none;
+}
+
+.wac-after-address .auto-correct-field input {
+    width: auto !important;
+}
+
+.wac-after-address .auto-correct-field label {
+    display: inline-block !important;
+}
+
+.wac-after-address .auto-correct-field input[type=checkbox]:checked::before {
+    
+}
+
+.wac-after-address .auto-correct-field input[type=checkbox] {
+    min-width: 1.2rem !important;
+}

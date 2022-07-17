@@ -1,0 +1,5 @@
+{
+    "require": {
+        "shipengine/shipengine": "^1.0"
+    }
+}

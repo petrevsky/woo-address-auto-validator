@@ -1,0 +1,38 @@
+name: shipengine-php
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+env:
+  COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+
+jobs:
+  ci:
+    name: shipengine-php test suite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: technote-space/toc-generator@v4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "7.4"
+          tools: phpcs, phpstan, phpunit, php-cs-fixer
+          extensions: xdebug
+          runner_github_workspace_path: ${{ github.workspace }}
+      - run: composer install
+      - run: php-cs-fixer fix -vvv --config=.php-cs-fixer.dist.php
+      # - run: phpcs --standard=./ruleset.xml PSR2 src
+      - run: phpstan analyse src --level 5
+      - run: phpunit
+      - run: ./vendor/bin/php-coveralls --coverage_clover=build/logs/clover.xml -v
