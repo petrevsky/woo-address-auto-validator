@@ -4,22 +4,79 @@
  */
 
 
-.wac-after-address .auto-correct-field {
+.waav-after-address .auto-correct-field {
     display: none;
 }
 
-.wac-after-address .auto-correct-field input {
+.waav-after-address .auto-correct-field input {
     width: auto !important;
 }
 
-.wac-after-address .auto-correct-field label {
+.waav-after-address .auto-correct-field label {
     display: inline-block !important;
 }
 
-.wac-after-address .auto-correct-field input[type=checkbox]:checked::before {
-    
+.waav-after-address .auto-correct-field input[type=checkbox] {
+    min-width: 1.2rem !important;
 }
 
-.wac-after-address .auto-correct-field input[type=checkbox] {
-    min-width: 1.2rem !important;
+.waav-icon {
+    width: 18px;
+    height: auto;
+}
+
+.color-home {
+    color: #179942;
+}
+
+.color-error {
+    color: #ff4016;
+}
+
+.waav-tooltip {
+    font-size: 12px;    
+}
+
+.color-warning {
+    color: #ff8000;
+}
+
+.waav-after-address-details {
+    clear: left;
+    float: left;
+    margin: 9px 0 0;
+    width: 100%;
+}
+
+.waav-icon {
+    margin-top: 5px;
+}
+
+.waav-address-message {
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.waav-validation-issue {
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.waav-message {
+    margin-left: 5px;
+    display: block;
+    max-width: 90%;
+    white-space: nowrap;
+    overflow: hidden !important;
+    text-overflow: ellipsis;
+    margin-right: 20px !important;
+}
+
+.waav_notify_msg{ position:fixed; width:300px; padding:15px; color:#fff; right:60px; top:0px; opacity:0; box-shadow:0px 2px 2px #333; border-radius:5px; z-index:1000000000;}
+
+
+#tab_2_email_reminder_subject {
+    width: 100%;
 }

@@ -123,12 +123,27 @@ class Woo_Address_Auto_Validator {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-woo-address-auto-validator-public.php';
 
 
+		
+		// Auto Validator Options
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/includes/wp-settings-framework/wp-settings-framework.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/includes/class-woo-address-auto-validator-menu.php';
+
 		// Vendor Autoload
 		require_once( dirname( __FILE__ ) . '/vendor/autoload.php');
-		// Validate Address Class
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/includes/class-shipstation.php';
 
+		// Validate Address Class
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/includes/class-admin-notices.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/includes/class-shipengine.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/includes/class-shipping-post-view.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/includes/class-reminder-emails.php';
+
+		// Invalid Address WooCommerce Status for Orders
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/includes/invalid-address-status/class-invalid-address-woocommerce-order.php';
 		
+		// Invalid Address WooCommerce Status for Subscriptions
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/includes/invalid-address-status/class-invalid-address-woocommerce-subscriptions-status.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/includes/invalid-address-status/class-invalid-address-woocommerce-status-for-subscription.php';
+
 
 		$this->loader = new Woo_Address_Auto_Validator_Loader();
 
@@ -165,7 +180,27 @@ class Woo_Address_Auto_Validator {
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 
-		$address_validator = new Address_Validator();
+		$enable_validation = wpsf_get_setting( 'waav', 'tab_1_general', 'enable' );
+
+		if( $enable_validation ) {
+			$address_validator = new Address_Validator();
+			$reminder_emails = new Reminder_Emails();
+			$admin_notices = new Admin_Notices();
+			$shipping_post = new Shipping_Post_View();
+		}
+		
+
+		if( is_admin() ) {
+			$shipping_post = new Woo_Address_Auto_Validator_Menu();
+		}
+
+		$IWSS = new Invalid_Address_Woocommerce_Subscription_Status();
+		$IWSS->run();
+
+		$IWSFS = new Invalid_Address_Woocommerce_Status_For_Subscription();
+		$IWSFS->run();
+
+		$IWSFO = new Invalid_Address_Woocommerce_Status_For_Order();
 	}
 
 	/**
@@ -178,10 +213,6 @@ class Woo_Address_Auto_Validator {
 	private function define_public_hooks() {
 
 		$plugin_public = new Woo_Address_Auto_Validator_Public( $this->get_plugin_name(), $this->get_version() );
-
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
-		
 		
 	}
 

@@ -52,7 +52,14 @@ class Woo_Address_Auto_Validator_Admin {
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
 
+
+		//add_action('admin_menu', array( $this, 'plugin_configure_menu' ) );
+
 	}
+
+	public function plugin_configure_menu() {
+        
+    }
 
 	/**
 	 * Register the stylesheets for the admin area.
@@ -96,7 +103,16 @@ class Woo_Address_Auto_Validator_Admin {
 		 * class.
 		 */
 
+		wp_enqueue_script( 'popper', plugin_dir_url( __FILE__ ) . 'js/popper.min.js' );
+		wp_enqueue_script( 'tippy', plugin_dir_url( __FILE__ ) . 'js/tippy-bundle.umd.min.js' );
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/woo-address-auto-validator-admin.js', array( 'jquery' ), $this->version, false );
+
+
+		wp_localize_script( $this->plugin_name, 'waav_var', array(
+			'ajax_url' => admin_url('admin-ajax.php'),
+			'nonce' => wp_create_nonce('ajax-nonce')
+		));
+   
 
 	}
 
