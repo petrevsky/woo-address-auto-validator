@@ -23,7 +23,7 @@ class Address_Validator {
         // add_action( 'wcs_create_subscription', array( $this, 'maybe_run_auto_correct_subscription_create' ) );
         add_action( 'save_post_shop_order', array( $this, 'maybe_run_auto_correct_save' ) );
         add_action( 'save_post_shop_subscription', array( $this, 'maybe_run_auto_correct_save' ) );
-        add_action( 'woocommerce_customer_save_address', array( $this, 'maybe_run_auto_correct_customer_save' ), 10, 2 );
+        add_action( 'woocommerce_customer_save_address', array( $this, 'maybe_run_auto_correct_customer_save' ), 5, 2 );
 
     }
 
@@ -112,6 +112,7 @@ class Address_Validator {
 
     public function maybe_run_auto_correct_customer_save( $user_id, $address_type ) {
 
+        
         if ( ! wcs_user_has_subscription( $user_id ) || wc_notice_count( 'error' ) > 0 || empty( $_POST['_wcsnonce'] ) || ! wp_verify_nonce( $_POST['_wcsnonce'], 'wcs_edit_address' ) ) {
 			return;
 		}
@@ -121,20 +122,19 @@ class Address_Validator {
             $post_id = absint( $_POST['update_subscription_address'] );
 
             $subscription = wcs_get_subscription( $post_id );
-
             
             if ( $subscription && self::can_user_edit_subscription_address( $subscription->get_id() ) ) {
-                
+
                 $this->maybe_change_post_status( $subscription, "Customer has updated shipping address from subscription area." );
-                
-                // Auto correct only if the user owns the subscriptions
-                $past_shipping_address = $this->get_post_shipping_address( $post_id );
+                                
+                // Run check here
+                /* $past_shipping_address = $this->get_post_shipping_address( $post_id );
                 $current_shipping_address = $this->customer_current_shipping_address();
 
                 if( $this->get_shipping_changes( $past_shipping_address, $current_shipping_address ) ) {
                     $this->run_auto_correct_on_save( $post_id, $past_shipping_address, $current_shipping_address );
                     $this->add_post_note( $post_id, 'Customer updated shipping address from the account area.' );
-                }
+                } */
 
             }
         }
