@@ -105,6 +105,7 @@ class Address_Validator {
         if( $subscription->get_status() == 'invalid-address' ) {
             update_post_meta( $subscription->get_id(), 'past_invalid', 1 );
             $subscription->update_status( 'active' );
+            $subscription->add_order_note( $note );
         }
 
     }
