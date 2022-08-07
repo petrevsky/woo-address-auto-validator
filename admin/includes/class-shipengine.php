@@ -41,14 +41,17 @@ class Address_Validator {
 
     }
 
-    public function maybe_run_auto_correct_subscription_create( $post ) {
+    public function maybe_run_auto_correct_subscription_create( $subscription ) {
 
-        $disable_sub_validation = wpsf_get_setting( 'waav', 'tab_1_additional', 'disable-validation-subscriptions' );
+        if ( 1 == $subscription->get_payment_count() ) {
+            $disable_sub_validation = wpsf_get_setting( 'waav', 'tab_1_additional', 'disable-validation-subscriptions' );
 
-        if( !$disable_sub_validation ) {
-            $post_id = $post->get_id();
-            $this->maybe_run_auto_correct_create( $post_id );
+            if( !$disable_sub_validation ) {
+                $subscription_id = $subscription->get_id();
+                $this->maybe_run_auto_correct_create( $subscription_id );
+            }
         }
+
     }
 
     public function is_address_modified( $post_id ) {
@@ -57,7 +60,7 @@ class Address_Validator {
 
     public function maybe_update_post_status( $post_id, $validated_data ) {
 
-        $is_valid = $this->check_address_status( $post_id, $validated_data );
+        $is_valid = $this->check_address_status( $validated_data );
 
         if( !$is_valid ) {
             if( $post_obj = $this->get_post_obj( $post_id ) ) {
@@ -74,24 +77,31 @@ class Address_Validator {
 
     public function check_address_status( $validated_data ) {
 
-        $valid_statuses = array(
-            'verified'	// Address was successfully verified.
-        );
+        $address_status = 1;
 
-        $invalid_statuses = array( 
-            'unverified', // Address validation was not validated against the database because pre-validation failed.
-            'warning',	// The address was validated, but the address should be double checked.
-            'error'	// The address could not be validated with any degree of certainty against the database.
-        );
+        if( !empty( $validated_data ) && isset( $validated_data['status'] ) ) {
 
-        $address_status = 0;
+            $valid_statuses = array(
+                'verified'	// Address was successfully verified.
+            );
 
-        if( isset( $validated_data['status'] ) ) {
-            $status = $validated_data['status'];
+            $invalid_statuses = array( 
+                'unverified', // Address validation was not validated against the database because pre-validation failed.
+                'warning',	// The address was validated, but the address should be double checked.
+                'error'	// The address could not be validated with any degree of certainty against the database.
+            );
 
-            if( in_array( $status, $valid_statuses ) ) {
-                $address_status = 1;
+            $address_status = 0;
+
+            if( isset( $validated_data['status'] ) ) {
+                $status = $validated_data['status'];
+
+                if( in_array( $status, $valid_statuses ) ) {
+                    $address_status = 1;
+                }
             }
+
+            
         }
 
         return $address_status;
