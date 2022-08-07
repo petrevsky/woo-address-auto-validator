@@ -15,7 +15,7 @@
  * @wordpress-plugin
  * Plugin Name:       WooCommerce Address Auto-Correct
  * Plugin URI:        https://www.upwork.com/freelancers/~0147062c274db19c47
- * Description:       Integrates with WooCommerce & WooCommerce Subscriptions to validate shipping address. 
+ * Description:       Validate and auto-corrects WooCommerce shipping address; integrates with WooCommerce Subscription. Based on ShipEngine API.
  * Version:           1.0.0
  * Author:            Chris Petrevski
  * Author URI:        https://www.upwork.com/freelancers/~0147062c274db19c47

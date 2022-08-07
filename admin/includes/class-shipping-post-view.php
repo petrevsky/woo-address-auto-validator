@@ -19,7 +19,20 @@ class Shipping_Post_View {
         add_action( 'wp_ajax_waav_validate_address', array( $this, 'validate_address_ajax' ) );
         add_action( 'wp_ajax_waav_generate_address_html', array( $this, 'generate_address_html' ) );
         add_action( 'wp_ajax_waav_reset_address', array( $this, 'reset_address_ajax' ) );
+        add_action( 'wp_ajax_waav_check_invalid_address', array( $this, 'check_invalid_address_ajax' ) );
 	}
+    
+    public function check_invalid_address_ajax() {
+
+        $post_id = $_POST['post_id'];
+
+        $address_validator = new Address_Validator();
+
+        $checker = $address_validator->related_subscription_invalid_address( $post_id );
+
+        echo $checker;
+        die;
+    } 
 
     public function reset_address_ajax() {
 
@@ -80,7 +93,7 @@ class Shipping_Post_View {
             
         }
 
-        error_log( print_r( $validated_data , true ) );
+        // error_log( print_r( $validated_data , true ) );
 
         echo json_encode($validated_data);
         die;
@@ -108,7 +121,7 @@ class Shipping_Post_View {
 
         $validated_data = $address_validator->validate_address( $current_shipping_address );
 
-        if( isset( $validated_data['matched_address_formatted'] ) ) {
+        if( isset( $validated_data['matched_address_formatted'] ) && !empty( $validated_data['matched_address_formatted'] ) ) {
             $validated_data['replace_address'] = array();
             $matched_address_formatted = $validated_data['matched_address_formatted'];
             $address_validator->update_address_fields( $post_id, $matched_address_formatted );
@@ -123,27 +136,76 @@ class Shipping_Post_View {
     }
 
     public function order_meta_display() {
-        add_meta_box(
-            'tcg-tracking-modal',
-            'Display Order Meta',
-            array( $this, 'display_order_meta' ),
-            'shop_subscription',
-            'normal',
-            'core'
-        );
+
+        global $post;
+        $id = $post->ID;
+        $verification_status = get_post_meta( $id, '_verification_status', 1 );
+        
+        if( !empty( $verification_status ) ) {
+        
+            add_meta_box(
+                'past-address-validation-data',
+                'Past Address Validation',
+                array( $this, 'past_validation_data' ),
+                'shop_subscription',
+                'side',
+                'core'
+            );
+
+        }
+
 
         add_meta_box(
-            'tcg-tracking-modal',
-            'Display Order Meta',
+            'order-details',
+            'Order Details',
             array( $this, 'display_order_meta' ),
             'shop_order',
             'normal',
             'core'
         );
+
     }
 
     public function display_order_meta( $post ) {
+        
         print_r( get_post_meta( $post->ID ) );
+    }
+
+    public function past_validation_data( $post ) {
+
+        $id = $post->ID;
+
+        $verification_status = get_post_meta($id, '_verification_status', 1);
+        
+        
+        if( !empty( $verification_status ) ) {
+
+            $verification_status = get_post_meta($id, '_verification_status', 1);
+            $address_precision = get_post_meta($id, '_address_precision', 1);
+            $latitude = get_post_meta($id, '_latitude', 1);
+            $longitude = get_post_meta($id, '_longitude', 1);
+            $url = "http://www.google.com/maps/place/$latitude,$longitude";
+       
+    ?>
+            <h3>    
+                Verification
+            </h3>
+            <div>
+                <p>
+                    Address is: <strong><?php echo $verification_status; ?></strong>
+                    <br>Address precision: <strong><?php echo $address_precision; ?></strong>
+
+                    <?php if(!empty($latitude) && !empty($longitude)) { ?>
+                        <br>Latitude: <strong><?php echo $latitude; ?></strong>
+                        <br>Longtitude: <strong><?php echo $longitude; ?></strong>
+                        <br><a href="<?php echo $url; ?>">View on Google Maps →</a>
+                    <?php } ?> 
+                </p>
+            
+            </div>
+
+	<?php
+        }
     }
 
 

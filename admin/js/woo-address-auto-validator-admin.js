@@ -99,13 +99,13 @@ jQuery( function ( $ ) {
 
 			if( value ) {
 				address_string += value;
-				console.log( value );
+				// console.log( value );
 			}
 			
 			if( value && ( i != ( address_count - 1 ) ) ) {
 
-				console.log( address_count );
-				console.log( i );
+				// console.log( address_count );
+				// console.log( i );
 				address_string += separator;
 			}
 			
@@ -120,9 +120,37 @@ jQuery( function ( $ ) {
 	}
 
 
+
+	$(document.body).on('click', '.shipping-label__new-label-button', function() {
+		
+		var post_id = $('#post_ID').val();
+		
+
+		$.ajax({
+			type: "POST",
+			url: waav_var.ajax_url,
+			dataType: "json",
+			data: { 
+				action: 'waav_check_invalid_address',
+				post_id: post_id,
+				nonce: waav_var.nonce
+			},
+			cache: false,
+			success: function( data ) {
+				if( data == 1 ) {
+					alert( "Be careful! This order is related to subscription that has invalid address. It is advised to not ship anything yet." );
+				}
+			},
+			error: function(xhr, status, error) {
+				
+			}			  
+		});
+
+	});
+
 	$(document.body).on('click', '.waav-button-revert', function() {
 
-		post_id = $('#post_ID').val();
+		var post_id = $('#post_ID').val();
 
 		var shipping_address_field = $(this).closest('.order_data_column');
 		shipping_address_field.block({
@@ -206,7 +234,7 @@ jQuery( function ( $ ) {
 			success: function( data ){
 
 				if( data ) {
-					console.log(data);
+					// console.log(data);
 
 					if( 'replace_address' in data ) {
 
@@ -242,7 +270,20 @@ jQuery( function ( $ ) {
 						reset_address_html( post_id, shipping_address_field );
 
 						waav_notify_msg.success( "Address validated" );
+					} else {
+						original_address = data['original_address_formatted'];
+						var note1 = '<b>Current address</b>: ' + get_pretty_address( original_address );
+						var note2 = 'Address verification: ' + data['status']; 
+						var note3 = 'Address manually validated.';
+
+						var notes = [note1, note2, note3];
+
+						add_order_notes( post_id, notes.reverse() );
+						reset_address_html( post_id, shipping_address_field );
+						waav_notify_msg.success( "Address validated" );
 					}
+
+
 				} else {
 
 					var notes = ['Address verification failed. Please contact developer.'];
@@ -266,8 +307,8 @@ jQuery( function ( $ ) {
 		if ( notes.length > 0 ) {
 
 			note = notes.pop();
-			console.log( note );
-			console.log( notes );
+			// console.log( note );
+			// console.log( notes );
 
 			$( '#woocommerce-order-notes' ).block({
 				message: null,

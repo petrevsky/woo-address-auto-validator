@@ -107,7 +107,7 @@ class Reminder_Emails {
             $body = str_replace( $param, $value, $body );
         }
 
-        error_log( $body );
+        // error_log( $body );
         
 
         return $body;
@@ -116,7 +116,6 @@ class Reminder_Emails {
 
 
     public function maybe_schedule_email_reminder( $post_id ) {
-
 
         $enable_schedule = wpsf_get_setting( 'waav', 'tab_2_email_reminder', 'reocurring-enable' );
         
@@ -134,13 +133,14 @@ class Reminder_Emails {
                     'waav_send_scheduled_reminder',
                     array( $post_id )
                 );
+
+                update_post_meta( $post_id, '_waav_next_reminder', $time );
                 
+                $address_validator = new Address_Validator;
+                $address_validator->add_post_note( $post_id, "Invalid address e-mail sent, next one scheduled for: " . date( 'd F Y H:i:s', $time ) );
             }
 
         }
-        
-        
-        
         
     }
 

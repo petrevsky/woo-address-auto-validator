@@ -179,13 +179,6 @@ class Address_Validator {
 
             $shipping_data = $this->get_post_shipping_address( $post_id );
 
-            /* 
-            error_log( print_r( $post_obj, true ) );
-            error_log( print_r( $shipping_data, true ) );
-            error_log( $this->first_run_check( $post_id ) );
-            error_log( "\n\n-------------" ); 
-            */
-
             $is_renewal = get_post_meta( $post_id, '_subscription_renewal', 1 );
 
             if ( !empty( array_filter( $shipping_data ) ) && !$this->first_run_check( $post_id ) && !$is_renewal ) {
@@ -335,7 +328,7 @@ class Address_Validator {
             $original_address_formatted = $validated_data['original_address_formatted'];
             $matched_address_formatted = $validated_data['matched_address_formatted'];
 
-            // Setting metched_address as $_POST to matched address
+            // Setting matched_address as $_POST
             if( $address_correct && !empty( $matched_address_formatted ) ) {
 
                 foreach( $matched_address_formatted as $key => $value ) {
@@ -356,6 +349,42 @@ class Address_Validator {
             $post_obj->add_post_note( 'Address verification failed. Please contact developer.' );
         }
 
+    }
+
+    public function related_subscription_invalid_address( $post_id ) {
+
+        $subscriptions_ids = array();
+        if( function_exists( 'wcs_get_subscriptions_for_order' ) ) {
+            $subscriptions_ids = wcs_get_subscriptions_for_order( $post_id, array( 'order_type' => 'any' ) );
+        }
+
+        $checker = 0;
+        if( !empty( $subscriptions_ids ) ) { 
+            foreach( $subscriptions_ids as $subscription_id => $subscription_obj ) {
+                $status = $subscription_obj->get_status();
+
+                if( $status == 'invalid-address' ) {
+                    $checker = 1;
+                }
+            }
+        
+        }
+
+        return $checker;
+    }
+
+    public function has_related_subscription( $post_id ) {
+
+        $subscriptions_ids = array();
+        if( function_exists( 'wcs_get_subscriptions_for_order' ) ) {
+            $subscriptions_ids = wcs_get_subscriptions_for_order( $post_id, array( 'order_type' => 'any' ) );
+        }
+
+        if( !empty( $subscriptions_ids ) ) {
+            return 1;
+        }
+
+        return 0;
     }
 
     public function run_auto_correct_on_create( $post_id, $shipping_data ) {
@@ -395,7 +424,9 @@ class Address_Validator {
                 $this->add_post_note( $post_id, 'Address correction is disabled, no changes were made to the current address.' );
             }
 
-            $this->maybe_update_post_status( $post_id, $validated_data ); // update post status according data validation
+            if( !$this->has_related_subscription( $post_id ) ) {
+                $this->maybe_update_post_status( $post_id, $validated_data ); // update post status according data validation
+            }
 
         } else {
             $this->post_address_modified( $post_id, false, $validated_data );
