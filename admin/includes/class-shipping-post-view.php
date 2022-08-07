@@ -11,8 +11,6 @@ use ShipEngine\Message\ShipEngineException;
 
 class Shipping_Post_View {
 
-    public $apiKey = 'TEST_7oWzD1wFdms731AFDpXDbXFxwTbGGMXPEERdYAtb6TI';
-
 	public function __construct() {
 		add_action( 'woocommerce_admin_order_data_after_shipping_address', array( $this, 'generate_shipping_html' ) );
         add_action( 'add_meta_boxes', array( $this, 'order_meta_display' ) );
@@ -159,7 +157,7 @@ class Shipping_Post_View {
             'order-details',
             'Order Details',
             array( $this, 'display_order_meta' ),
-            'shop_order',
+            'shop_subscription',
             'normal',
             'core'
         );
