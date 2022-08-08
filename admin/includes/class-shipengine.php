@@ -406,25 +406,18 @@ class Address_Validator {
 
         if( $validated_data ) {
 
+            $address_status = isset( $validated_data['status'] ) ? $validated_data['status'] : 0;
+
             $original_address_formatted = $validated_data['original_address_formatted'];
             $matched_address_formatted = $validated_data['matched_address_formatted'];
 
             $this->add_post_note( $post_id, "<b>Current Address:</b> " . $this->get_pretty_address( $shipping_data ) );
 
-            if( !empty( $matched_address_formatted ) ) {
-                
-
+            if( !empty( $validated_data['matched_address'] ) && $this->check_address_status( $validated_data ) && !$disable_auto_correct ) {
                 // Disable updating to auto corrected address
-
-                if( !$disable_auto_correct ) {
-                    $this->post_address_modified( $post_id, true, $validated_data );
-                    $this->update_address_fields( $post_id, $matched_address_formatted );
-                    $this->add_post_note( $post_id, '<b>Matched Address:</b> ' . $this->get_pretty_address( $matched_address_formatted ) );
-                } else {
-                    $this->post_address_modified( $post_id, false, $validated_data );
-                }
-
-
+                $this->post_address_modified( $post_id, true, $validated_data );
+                $this->update_address_fields( $post_id, $matched_address_formatted );
+                $this->add_post_note( $post_id, '<b>Matched Address:</b> ' . $this->get_pretty_address( $matched_address_formatted ) );
             } else {
                 $this->post_address_modified( $post_id, false, $validated_data );
             }
